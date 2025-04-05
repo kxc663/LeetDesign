@@ -1,17 +1,58 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // Check if user just registered
+  useEffect(() => {
+    if (searchParams.get('registered') === 'true') {
+      setSuccessMessage('Account created successfully! Please login.');
+    }
+  }, [searchParams]);
+  
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would integrate with NextAuth.js
-    console.log('Login with:', email, password);
-    alert('Login functionality will be implemented with NextAuth.js');
+    setErrorMessage('');
+    setSuccessMessage('');
+    
+    try {
+      setIsLoading(true);
+      
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Something went wrong');
+      }
+      
+      // If login is successful, redirect to homepage
+      router.push('/');
+    } catch (error: any) {
+      setErrorMessage(error.message || 'An error occurred during login');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSocialLogin = (provider: string) => {
@@ -39,6 +80,18 @@ export default function LoginPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {errorMessage && (
+            <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
+              {errorMessage}
+            </div>
+          )}
+          
+          {successMessage && (
+            <div className="mb-4 p-2 bg-green-100 border border-green-400 text-green-700 rounded">
+              {successMessage}
+            </div>
+          )}
+          
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -99,9 +152,10 @@ export default function LoginPage() {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                disabled={isLoading}
+                className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign in
+                {isLoading ? 'Signing in...' : 'Sign in'}
               </button>
             </div>
           </form>

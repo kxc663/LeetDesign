@@ -3,27 +3,6 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
-      {/* Navigation */}
-      <nav className="container mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">LeetDesign</span>
-          </div>
-          <div className="hidden md:flex items-center space-x-8">
-            <Link href="/problems" className="text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400">Problems</Link>
-            <Link href="/about" className="text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400">About</Link>
-            <Link href="/login" className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">Sign In</Link>
-          </div>
-          <div className="md:hidden">
-            <button className="text-gray-700 dark:text-gray-300">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-      </nav>
-
       {/* Hero section */}
       <section className="container mx-auto px-6 py-12 md:py-24">
         <div className="flex flex-col md:flex-row items-center">

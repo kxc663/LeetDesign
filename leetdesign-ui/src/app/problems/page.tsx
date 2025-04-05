@@ -73,27 +73,6 @@ export default function ProblemsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Top navigation */}
-      <nav className="bg-white dark:bg-gray-800 shadow-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-                LeetDesign
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/login" className="text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400">
-                Sign In
-              </Link>
-              <Link href="/signup" className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
-                Sign Up
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       {/* Main content */}
       <div className="container mx-auto px-6 py-8">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">System Design Problems</h1>

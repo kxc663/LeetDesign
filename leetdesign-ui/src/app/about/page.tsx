@@ -3,30 +3,6 @@ import Link from 'next/link';
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Top navigation */}
-      <nav className="bg-white dark:bg-gray-800 shadow-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-                LeetDesign
-              </Link>
-            </div>
-            <div className="hidden md:flex items-center space-x-8">
-              <Link href="/problems" className="text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400">
-                Problems
-              </Link>
-              <Link href="/about" className="text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400">
-                About
-              </Link>
-              <Link href="/login" className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
-                Sign In
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       {/* About header */}
       <header className="bg-white dark:bg-gray-800 py-16">
         <div className="container mx-auto px-6 text-center">

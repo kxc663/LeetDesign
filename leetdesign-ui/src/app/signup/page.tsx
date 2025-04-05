@@ -2,24 +2,61 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const router = useRouter();
+  
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage('');
     
+    // Basic validation
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      setErrorMessage('Passwords do not match');
       return;
     }
     
-    // In a real app, this would integrate with NextAuth.js
-    console.log('Signup with:', name, email, password);
-    alert('Signup functionality will be implemented with NextAuth.js');
+    if (password.length < 8) {
+      setErrorMessage('Password must be at least 8 characters long');
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Something went wrong');
+      }
+      
+      // If registration is successful, redirect to login page
+      router.push('/login?registered=true');
+    } catch (error: any) {
+      setErrorMessage(error.message || 'An error occurred during registration');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSocialLogin = (provider: string) => {
@@ -47,6 +84,12 @@ export default function SignupPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {errorMessage && (
+            <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
+              {errorMessage}
+            </div>
+          )}
+          
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -143,9 +186,10 @@ export default function SignupPage() {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                disabled={isLoading}
+                className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Create account
+                {isLoading ? 'Creating account...' : 'Create account'}
               </button>
             </div>
           </form>
