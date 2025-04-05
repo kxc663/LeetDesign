@@ -1,0 +1,66 @@
+# dependencies
+/node_modules
+/leetdesign-ui/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+/leetdesign-ui/coverage
+
+# next.js
+/.next/
+/leetdesign-ui/.next/
+/out/
+/leetdesign-ui/out/
+
+# production
+/build
+/leetdesign-ui/build
+
+# misc
+.DS_Store
+*.pem
+Thumbs.db
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# local env files
+.env*.local
+/leetdesign-ui/.env*.local
+.env
+/leetdesign-ui/.env
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# logs
+logs
+*.log
+
+# MongoDB local data
+/data/db
+
+# PWA
+/public/sw.js
+/public/workbox-*.js
+/leetdesign-ui/public/sw.js
+/leetdesign-ui/public/workbox-*.js
+
+# cache
+.eslintcache
+.cache 
