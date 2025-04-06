@@ -3,13 +3,13 @@ import mongoose from 'mongoose';
 // Define types for the global cache
 declare global {
   var mongoose: {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
+    conn: mongoose.Mongoose | null;
+    promise: Promise<mongoose.Mongoose> | null;
   };
 }
 
 // MongoDB URI from environment variable
-const MONGODB_URI = 'mongodb+srv://kaitaochen2001:TonyChen123%23%40%21@leetdesign.mma9xrn.mongodb.net/LeetDesign?retryWrites=true&w=majority&appName=LeetDesign';
+const MONGODB_URI = process.env.MONGODB_URI as string;
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable');

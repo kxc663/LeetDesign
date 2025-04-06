@@ -16,7 +16,6 @@ export default function LoginPage() {
 
   const { refreshAuth } = useAuth();
   
-  // Check if user just registered
   useEffect(() => {
     if (searchParams.get('registered') === 'true') {
       setSuccessMessage('Account created successfully! Please login.');
