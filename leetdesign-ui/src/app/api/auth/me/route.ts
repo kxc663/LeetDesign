@@ -59,4 +59,75 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    // Get the token from cookies
+    const token = req.cookies.get('auth_token')?.value;
+
+    // If no token is present, the user is not authenticated
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Not authenticated' },
+        { status: 401 }
+      );
+    }
+
+    try {
+      // Verify the token
+      const decoded = verify(token, JWT_SECRET) as { userId: string; email: string };
+      
+      // Parse the request body
+      const { name } = await req.json();
+      
+      // Validate the input
+      if (!name) {
+        return NextResponse.json(
+          { error: 'Name is required' },
+          { status: 400 }
+        );
+      }
+      
+      // Connect to the database
+      await connectToDatabase();
+      
+      // Find and update the user by ID
+      const updatedUser = await User.findByIdAndUpdate(
+        decoded.userId,
+        { name },
+        { new: true } // Return the updated document
+      );
+      
+      // If no user found, return error
+      if (!updatedUser) {
+        return NextResponse.json(
+          { error: 'User not found' },
+          { status: 404 }
+        );
+      }
+      
+      // Return updated user data (excluding sensitive information)
+      return NextResponse.json({
+        message: 'Profile updated successfully',
+        user: {
+          _id: updatedUser._id,
+          name: updatedUser.name,
+          email: updatedUser.email,
+        }
+      });
+    } catch (error) {
+      // If token verification fails, user is not authenticated
+      return NextResponse.json(
+        { error: 'Invalid token' },
+        { status: 401 }
+      );
+    }
+  } catch (error: any) {
+    console.error('Profile update error:', error);
+    return NextResponse.json(
+      { error: error.message || 'An error occurred while updating profile' },
+      { status: 500 }
+    );
+  }
 } 

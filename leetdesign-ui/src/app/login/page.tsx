@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-
+import { useAuth } from '@/hooks/AuthContext';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,6 +13,8 @@ export default function LoginPage() {
   
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const { refreshAuth } = useAuth();
   
   // Check if user just registered
   useEffect(() => {
@@ -47,6 +49,7 @@ export default function LoginPage() {
       }
       
       // If login is successful, redirect to homepage
+      await refreshAuth();
       router.push('/');
     } catch (error: any) {
       setErrorMessage(error.message || 'An error occurred during login');
