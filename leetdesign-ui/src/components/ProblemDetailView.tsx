@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Problem } from '@/models/Problem';
+import { useSearchParams } from 'next/navigation';
 
 interface ProblemDetailViewProps {
   problem: Problem;
@@ -15,6 +16,10 @@ export default function ProblemDetailView({ problem, onSaveSolution }: ProblemDe
   const handleSave = () => {
     onSaveSolution(answer);
   };
+
+  const searchParams = useSearchParams();
+  const from = searchParams.get('from');
+  const backHerf = from === 'admin' ? '/admin/problems' : '/problems';
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -118,7 +123,7 @@ export default function ProblemDetailView({ problem, onSaveSolution }: ProblemDe
 
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
               <div className="flex flex-col space-y-4">
-                <Link href="/problems" className="flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-white rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <Link href={backHerf} className="flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-white rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path>
                   </svg>

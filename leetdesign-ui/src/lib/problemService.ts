@@ -382,4 +382,100 @@ export async function markProblemCompleted(problemId: string): Promise<boolean> 
       resolve(true);
     }, 500);
   });
+}
+
+/**
+ * Create a new problem
+ */
+export async function createProblem(problem: Omit<Problem, 'id'>): Promise<Problem> {
+  // In a real app, this would be an API call
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      // Generate a new ID - this would typically be done by the backend
+      const newId = (Math.max(...Object.keys(MOCK_PROBLEMS).map(id => parseInt(id))) + 1).toString();
+      
+      // Create the new problem with the generated ID
+      const newProblem: Problem = {
+        id: newId,
+        ...problem
+      };
+      
+      // Add to our mock database
+      MOCK_PROBLEMS[newId] = newProblem;
+      
+      // Update the problem list
+      PROBLEM_LIST.push({
+        id: newId,
+        title: problem.title,
+        difficulty: problem.difficulty,
+        description: problem.description,
+        category: problem.category,
+        attempted: false,
+        completed: false
+      });
+      
+      resolve(newProblem);
+    }, 500);
+  });
+}
+
+/**
+ * Update an existing problem
+ */
+export async function updateProblem(id: string, problem: Partial<Problem>): Promise<Problem | null> {
+  // In a real app, this would be an API call
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      if (!MOCK_PROBLEMS[id]) {
+        resolve(null);
+        return;
+      }
+      
+      // Update the problem
+      MOCK_PROBLEMS[id] = {
+        ...MOCK_PROBLEMS[id],
+        ...problem
+      };
+      
+      // Update the problem list if needed
+      const listIndex = PROBLEM_LIST.findIndex(p => p.id === id);
+      if (listIndex !== -1) {
+        PROBLEM_LIST[listIndex] = {
+          ...PROBLEM_LIST[listIndex],
+          title: problem.title || PROBLEM_LIST[listIndex].title,
+          difficulty: problem.difficulty || PROBLEM_LIST[listIndex].difficulty,
+          description: problem.description || PROBLEM_LIST[listIndex].description,
+          category: problem.category || PROBLEM_LIST[listIndex].category,
+        };
+      }
+      
+      resolve(MOCK_PROBLEMS[id]);
+    }, 500);
+  });
+}
+
+/**
+ * Delete a problem
+ */
+export async function deleteProblem(id: string): Promise<boolean> {
+  // In a real app, this would be an API call
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      if (!MOCK_PROBLEMS[id]) {
+        resolve(false);
+        return;
+      }
+      
+      // Delete the problem
+      delete MOCK_PROBLEMS[id];
+      
+      // Remove from the problem list
+      const listIndex = PROBLEM_LIST.findIndex(p => p.id === id);
+      if (listIndex !== -1) {
+        PROBLEM_LIST.splice(listIndex, 1);
+      }
+      
+      resolve(true);
+    }, 500);
+  });
 } 
