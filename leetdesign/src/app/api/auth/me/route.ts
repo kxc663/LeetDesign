@@ -4,7 +4,7 @@ import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 
 // JWT secret key (same as in login route)
-const JWT_SECRET = 'your-jwt-secret-key-change-this-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function GET(req: NextRequest) {
   try {
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 
     try {
       // Verify the token
-      const decoded = verify(token, JWT_SECRET) as { userId: string; email: string };
+      const decoded = verify(token, JWT_SECRET as string) as { userId: string; email: string };
       
       // Connect to the database
       await connectToDatabase();
@@ -76,7 +76,7 @@ export async function PUT(req: NextRequest) {
 
     try {
       // Verify the token
-      const decoded = verify(token, JWT_SECRET) as { userId: string; email: string };
+      const decoded = verify(token, JWT_SECRET as string) as { userId: string; email: string };
       
       // Parse the request body
       const { name } = await req.json();

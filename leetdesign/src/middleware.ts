@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { verify } from 'jsonwebtoken';
 
 // JWT secret key (same as in login route)
-const JWT_SECRET = 'your-jwt-secret-key-change-this-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Routes that don't require authentication
 const publicRoutes = ['/', '/login', '/signup', '/about'];
@@ -37,7 +37,7 @@ export function middleware(request: NextRequest) {
     
     try {
       // Verify the token
-      verify(token, JWT_SECRET);
+      verify(token, JWT_SECRET as string);
       return NextResponse.next();
     } catch (error) {
       // If token is invalid, redirect to login
@@ -51,7 +51,7 @@ export function middleware(request: NextRequest) {
   if (token && (pathname === '/login' || pathname === '/signup')) {
     try {
       // Verify the token
-      verify(token, JWT_SECRET);
+      verify(token, JWT_SECRET as string);
       // If token is valid, redirect to home page
       return NextResponse.redirect(new URL('/', request.url));
     } catch (error) {

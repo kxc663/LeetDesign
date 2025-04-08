@@ -5,7 +5,7 @@ import { sign } from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
 // JWT secret key (in production, use environment variable)
-const JWT_SECRET = 'your-jwt-secret-key-change-this-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(req: NextRequest) {
   try {
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
         userId: user._id,
         email: user.email 
       },
-      JWT_SECRET,
+      JWT_SECRET as string,
       { expiresIn: '7d' } // Token expires in 7 days
     );
 
