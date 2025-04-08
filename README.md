@@ -36,20 +36,20 @@ LeetDesign aims to provide a structured approach to learning system design with 
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/LeetDesign.git
+   git clone https://github.com/kxc663/LeetDesign.git
    cd LeetDesign
    ```
 
 2. Install dependencies:
    ```
-   cd leetdesign-ui
+   cd leetdesign
    npm install
    # or
    yarn install
    ```
 
 3. Set up environment variables:
-   Create a `.env.local` file in the `leetdesign-ui` directory with the following variables:
+   Create a `.env` file in the `leetdesign` directory with the following variables:
    ```
    NEXTAUTH_URL=http://localhost:3000
    NEXTAUTH_SECRET=your_random_string_here
@@ -63,6 +63,9 @@ LeetDesign aims to provide a structured approach to learning system design with 
    
    GITHUB_ID=your_github_client_id
    GITHUB_SECRET=your_github_client_secret
+
+   # JWT
+   JWT_SECRET=your_jwt_secret
    ```
 
 4. Run the development server:
@@ -77,7 +80,7 @@ LeetDesign aims to provide a structured approach to learning system design with 
 ## 🧪 Project Structure
 
 ```
-leetdesign-ui/
+leetdesign/
 ├── public/              # Static assets
 ├── src/
 │   ├── app/             # Next.js App Router
@@ -93,7 +96,7 @@ leetdesign-ui/
 │   ├── components/      # Reusable UI components
 │   ├── lib/             # Utility functions and libraries
 │   └── models/          # MongoDB models
-├── .env.local           # Environment variables (not in repo)
+├── .env                 # Environment variables (not in repo)
 ├── next.config.js       # Next.js configuration
 ├── package.json         # Project dependencies
 └── tailwind.config.js   # Tailwind CSS configuration
