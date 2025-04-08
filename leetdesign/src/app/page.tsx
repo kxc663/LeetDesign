@@ -107,8 +107,9 @@ export default function Home() {
               <div>
                 <h3 className="text-gray-800 dark:text-white font-semibold mb-4">Connect</h3>
                 <ul className="space-y-2">
-                  <li><a href="https://github.com/yourusername/LeetDesign" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400">GitHub</a></li>
-                  <li><a href="mailto:contact@leetdesign.io" className="text-gray-600 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400">Contact</a></li>
+                  <li><a href="https://github.com/kxc663/LeetDesign" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400">GitHub</a></li>
+                  <li><a href="mailto:kaitaochen2001@gmail.com" className="text-gray-600 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400">Contact</a></li>
+                  <li><a href="https://www.linkedin.com/in/kaitao-chen/" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400">LinkedIn</a></li>
                 </ul>
               </div>
             </div>
