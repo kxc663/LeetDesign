@@ -35,20 +35,22 @@ const UserSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-// Hash password before saving
-UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    return next();
-  }
-  
-  try {
-    const saltRounds = 10;
-    this.password = await hash(this.password, saltRounds);
-    next();
-  } catch (error: any) {
-    next(error);
-  }
-});
+if (typeof window === 'undefined') {
+  // Hash password before saving
+  UserSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) {
+      return next();
+    }
+    
+    try {
+      const saltRounds = 10;
+      this.password = await hash(this.password, saltRounds);
+      next();
+    } catch (error: any) {
+      next(error);
+    }
+  });
+}
 
 // Method to compare passwords
 UserSchema.methods.comparePassword = async function (password: string): Promise<boolean> {
@@ -56,6 +58,16 @@ UserSchema.methods.comparePassword = async function (password: string): Promise<
 };
 
 // Create and export the model
-const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+let User: Model<IUser>;
+
+// Check if we're on the server (mongoose is fully available) or client side
+if (typeof window === 'undefined') {
+  // We're on the server
+  User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+} else {
+  // We're on the client, provide a mock or placeholder
+  // @ts-ignore - This is intentional for client-side
+  User = { findById: () => null, find: () => [], countDocuments: () => 0 };
+}
 
 export default User; 

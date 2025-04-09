@@ -43,7 +43,14 @@ export default function ProblemDetailView({ problem, onSaveSolution }: ProblemDe
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 mb-6 shadow-sm">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Requirements</h2>
             <ul className="space-y-2">
-              {problem.requirements.map((req: string, index: number) => (
+              <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-2">Functional Requirements</h3>
+              {problem.functional_requirements.map((req: string, index: number) => (
+                <li key={index} className={`${req.endsWith(':') ? 'font-semibold mt-4' : 'ml-4'} text-gray-700 dark:text-gray-300`}>
+                  {req}
+                </li>
+              ))}
+              <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-2">Non-Functional Requirements</h3>
+              {problem.non_functional_requirements.map((req: string, index: number) => (
                 <li key={index} className={`${req.endsWith(':') ? 'font-semibold mt-4' : 'ml-4'} text-gray-700 dark:text-gray-300`}>
                   {req}
                 </li>

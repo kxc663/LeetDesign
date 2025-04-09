@@ -11,7 +11,10 @@ export default function ProblemCard({ problem }: ProblemCardProps) {
       <div className="p-6">
         <div className="flex justify-between items-start">
           <div>
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">{problem.title}</h2>
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
+              {typeof problem.displayId !== 'undefined' ? `${problem.displayId}. ` : ''}
+              {problem.title}
+            </h2>
             <div className="flex items-center space-x-3 mb-3">
               <span className={`inline-block px-2 py-1 text-xs rounded-full 
                 ${problem.difficulty === 'Easy' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 

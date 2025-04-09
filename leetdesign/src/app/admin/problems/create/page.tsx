@@ -7,6 +7,7 @@ import { createProblem } from '@/lib/problemService';
 import { useAuth } from '@/hooks/AuthContext';
 import DynamicInputList from '@/components/admin/DynamicInputList';
 import DynamicHintsList from '@/components/admin/DynamicHintsList';
+import { Hint } from '@/models/Problem';
 
 export default function CreateProblemPage() {
   const router = useRouter();
@@ -20,9 +21,9 @@ export default function CreateProblemPage() {
   const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard'>('Medium');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
-  const [functionalRequirements, setFunctionalRequirements] = useState<string[]>(['Functional Requirements:']);
-  const [nonFunctionalRequirements, setNonFunctionalRequirements] = useState<string[]>(['Non-Functional Requirements:']);
-  const [hints, setHints] = useState([{ id: 'h1', title: '', content: '' }]);
+  const [functionalRequirements, setFunctionalRequirements] = useState<string[]>([]);
+  const [nonFunctionalRequirements, setNonFunctionalRequirements] = useState<string[]>([]);
+  const [hints, setHints] = useState<Hint[]>([{ id: 'h1', title: '', content: '' }]);
   const [referenceSolution, setReferenceSolution] = useState('');
   
   // Form state
@@ -39,7 +40,7 @@ export default function CreateProblemPage() {
       return;
     }
     
-    if (functionalRequirements.length <= 1 || nonFunctionalRequirements.length <= 1) {
+    if (functionalRequirements.length < 1 || nonFunctionalRequirements.length < 1) {
       setError('Please add at least one requirement for each requirement type.');
       return;
     }
@@ -53,34 +54,52 @@ export default function CreateProblemPage() {
     setError('');
     
     try {
-      // Combine all requirements
-      const requirements = [...functionalRequirements, ...nonFunctionalRequirements];
       
       // Create problem object
-      const problem = {
+      const problemData = {
         title,
         difficulty,
         category,
         description,
-        requirements,
+        functional_requirements: functionalRequirements,
+        non_functional_requirements: nonFunctionalRequirements,
         hints,
-        reference_solution: referenceSolution,
-        attempted: false,
-        completed: false
+        reference_solution: referenceSolution
       };
       
+      console.log('Submitting problem:', problemData);
+      
       // Submit problem
-      const newProblem = await createProblem(problem);
+      const newProblem = await createProblem(problemData);
       
       setSuccess('Problem created successfully!');
+      console.log('New problem created:', newProblem);
       
-      // Redirect to the problem details page after a short delay
-      setTimeout(() => {
-        router.push(`/problems/${newProblem.id}`);
-      }, 2000);
+      // Make sure we have a valid ID before redirecting
+      if (newProblem && newProblem._id) {
+        console.log(`Redirecting to problem with ID: ${newProblem._id}`);
+        // Redirect to the problem details page after a short delay
+        setTimeout(() => {
+          router.push(`/problems/${newProblem._id}?from=admin`);
+        }, 2000);
+      } else {
+        console.error('Problem was created but no valid ID was returned', newProblem);
+        setError('Problem was created but could not redirect to the new problem page.');
+      }
     } catch (error) {
       console.error('Error creating problem:', error);
-      setError('An error occurred while creating the problem. Please try again.');
+      let errorMessage = 'An error occurred while creating the problem. Please try again.';
+      
+      // Try to extract more specific error message if available
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = (error as any).message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
