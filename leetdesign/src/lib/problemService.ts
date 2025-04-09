@@ -105,7 +105,18 @@ export async function deleteProblem(id: string): Promise<boolean> {
   
   // Server-side DB access
   try {
+    const problem = await Problem.findById(id);
+    
+    if (!problem) {
+      throw new Error('Problem not found');
+    }
+
     await Problem.findByIdAndDelete(id);
+    // move all the problems after the deleted problem one position up
+    await Problem.updateMany(
+      { displayId: { $gt: problem.displayId } },
+      { $inc: { displayId: -1 } }
+    );
     return true;
   } catch (error) {
     console.error(`Error deleting problem with id ${id}:`, error);

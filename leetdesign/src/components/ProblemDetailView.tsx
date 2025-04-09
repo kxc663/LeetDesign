@@ -42,20 +42,46 @@ export default function ProblemDetailView({ problem, onSaveSolution }: ProblemDe
           {/* Requirements */}
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 mb-6 shadow-sm">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Requirements</h2>
-            <ul className="space-y-2">
-              <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-2">Functional Requirements</h3>
-              {problem.functional_requirements.map((req: string, index: number) => (
-                <li key={index} className={`${req.endsWith(':') ? 'font-semibold mt-4' : 'ml-4'} text-gray-700 dark:text-gray-300`}>
-                  {req}
-                </li>
-              ))}
-              <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-2">Non-Functional Requirements</h3>
-              {problem.non_functional_requirements.map((req: string, index: number) => (
-                <li key={index} className={`${req.endsWith(':') ? 'font-semibold mt-4' : 'ml-4'} text-gray-700 dark:text-gray-300`}>
-                  {req}
-                </li>
-              ))}
-            </ul>
+            
+            {/* Functional Requirements */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">
+                Functional Requirements
+              </h3>
+              <ul className="space-y-2 list-disc pl-5">
+                {problem.functional_requirements.map((req: string, index: number) => (
+                  req.endsWith(':') ? (
+                    <li key={index} className="font-semibold mt-4 list-none -ml-5 text-indigo-600 dark:text-indigo-400">
+                      {req}
+                    </li>
+                  ) : (
+                    <li key={index} className="text-gray-700 dark:text-gray-300">
+                      {req}
+                    </li>
+                  )
+                ))}
+              </ul>
+            </div>
+            
+            {/* Non-Functional Requirements */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">
+                Non-Functional Requirements
+              </h3>
+              <ul className="space-y-2 list-disc pl-5">
+                {problem.non_functional_requirements.map((req: string, index: number) => (
+                  req.endsWith(':') ? (
+                    <li key={index} className="font-semibold mt-4 list-none -ml-5 text-indigo-600 dark:text-indigo-400">
+                      {req}
+                    </li>
+                  ) : (
+                    <li key={index} className="text-gray-700 dark:text-gray-300">
+                      {req}
+                    </li>
+                  )
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
 
