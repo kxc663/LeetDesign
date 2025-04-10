@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Problem from '@/models/Problem';
-import { getProblems, getProblem, createProblem } from '@/lib/problemService';
+import { getProblems, createProblem } from '@/lib/problemService';
 import connectToDatabase from '@/lib/mongodb';
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
 // GET /api/auth/problems
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     await connectToDatabase();
     const problems = await getProblems();

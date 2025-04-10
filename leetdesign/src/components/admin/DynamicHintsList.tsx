@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Hint } from '@/models/Problem';
 
 interface DynamicHintsListProps {

@@ -63,7 +63,7 @@ export default function ManageProblemsPage() {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-6">
         <h1 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Access Denied</h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">You don't have permission to access this page.</p>
+        <p className="text-gray-600 dark:text-gray-400 mb-6">You don&apos;t have permission to access this page.</p>
         <Link href="/" className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
           Go to Home
         </Link>

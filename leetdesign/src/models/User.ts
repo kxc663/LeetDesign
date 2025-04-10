@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Document, Model, CallbackError } from 'mongoose';
 import { hash, compare } from 'bcrypt';
 
 // Define the User interface
@@ -46,8 +46,8 @@ if (typeof window === 'undefined') {
       const saltRounds = 10;
       this.password = await hash(this.password, saltRounds);
       next();
-    } catch (error: any) {
-      next(error);
+    } catch (error: unknown) {
+      next(error as CallbackError);
     }
   });
 }
@@ -66,7 +66,7 @@ if (typeof window === 'undefined') {
   User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
 } else {
   // We're on the client, provide a mock or placeholder
-  // @ts-ignore - This is intentional for client-side
+  // @ts-expect-error - This is intentional for client-side
   User = { findById: () => null, find: () => [], countDocuments: () => 0 };
 }
 

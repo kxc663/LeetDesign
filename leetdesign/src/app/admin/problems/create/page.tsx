@@ -7,7 +7,7 @@ import { createProblem } from '@/lib/problemService';
 import { useAuth } from '@/hooks/AuthContext';
 import { Hint } from '@/models/Problem';
 import ProblemForm from '@/components/admin/ProblemForm';
-
+import { CreateProblemInput } from '@/models/Problem';
 export default function CreateProblemPage() {
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
@@ -32,7 +32,7 @@ export default function CreateProblemPage() {
     referenceSolution: '',
   };
   
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (formData: CreateProblemInput) => {
     setIsSubmitting(true);
     setError('');
     
@@ -58,17 +58,7 @@ export default function CreateProblemPage() {
       }
     } catch (error) {
       console.error('Error creating problem:', error);
-      let errorMessage = 'An error occurred while creating the problem. Please try again.';
-      
-      // Try to extract more specific error message if available
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (typeof error === 'string') {
-        errorMessage = error;
-      } else if (error && typeof error === 'object' && 'message' in error) {
-        errorMessage = (error as any).message;
-      }
-      
+      const errorMessage = 'An error occurred while creating the problem. Please try again.';
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -80,7 +70,7 @@ export default function CreateProblemPage() {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-6">
         <h1 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Access Denied</h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">You don't have permission to access this page.</p>
+        <p className="text-gray-600 dark:text-gray-400 mb-6">You don&apos;t have permission to access this page.</p>
         <Link href="/" className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
           Go to Home
         </Link>

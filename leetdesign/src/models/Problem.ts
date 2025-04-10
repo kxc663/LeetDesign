@@ -116,7 +116,7 @@ if (typeof window === 'undefined') {
   Problem = mongoose.models.Problem || mongoose.model<Problem>('Problem', ProblemSchema);
 } else {
   // We're on the client, provide a mock or placeholder
-  // @ts-ignore - This is intentional for client-side
+  // @ts-expect-error - This is intentional for client-side
   Problem = { findById: () => null, find: () => [], countDocuments: () => 0 };
 }
 

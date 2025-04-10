@@ -50,10 +50,10 @@ export async function POST(req: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Signup error:', error);
     return NextResponse.json(
-      { error: error.message || 'An error occurred during registration' },
+      { error: error instanceof Error ? error.message : 'An error occurred during registration' },
       { status: 500 }
     );
   }

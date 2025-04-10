@@ -40,8 +40,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await response.json();
       setUser(data.user);
       setIsAuthenticated(true);
-    } catch (error: any) {
-      setError(error.message || 'Error checking auth');
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'Error checking auth');
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -56,8 +56,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       setIsAuthenticated(false);
       router.push('/');
-    } catch (error: any) {
-      setError(error.message || 'Logout error');
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'Logout error');
     } finally {
       setIsLoading(false);
     }

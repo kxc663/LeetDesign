@@ -3,6 +3,8 @@ import { verify } from 'jsonwebtoken';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 
+export const dynamic = 'force-dynamic';
+
 // JWT secret key (same as in login route)
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -52,10 +54,10 @@ export async function GET(req: NextRequest) {
         { status: 401 }
       );
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Auth check error:', error);
     return NextResponse.json(
-      { error: error.message || 'An error occurred while checking authentication' },
+      { error: error instanceof Error ? error.message : 'An error occurred while checking authentication' },
       { status: 500 }
     );
   }
@@ -123,10 +125,10 @@ export async function PUT(req: NextRequest) {
         { status: 401 }
       );
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Profile update error:', error);
     return NextResponse.json(
-      { error: error.message || 'An error occurred while updating profile' },
+      { error: error instanceof Error ? error.message : 'An error occurred while updating profile' },
       { status: 500 }
     );
   }

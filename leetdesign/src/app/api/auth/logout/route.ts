@@ -9,10 +9,10 @@ export async function POST() {
     return NextResponse.json({ 
       message: 'Logged out successfully' 
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Logout error:', error);
     return NextResponse.json(
-      { error: error.message || 'An error occurred during logout' },
+      { error: error instanceof Error ? error.message : 'An error occurred during logout' },
       { status: 500 }
     );
   }

@@ -72,10 +72,10 @@ export async function POST(req: NextRequest) {
         email: user.email,
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Login error:', error);
     return NextResponse.json(
-      { error: error.message || 'An error occurred during login' },
+      { error: error instanceof Error ? error.message : 'An error occurred during login' },
       { status: 500 }
     );
   }

@@ -62,8 +62,8 @@ export default function ProfilePage() {
       // Refresh auth state to update user data across the app
       await refreshAuth();
       
-    } catch (error: any) {
-      setErrorMessage(error.message || 'An error occurred while updating profile');
+    } catch (error: unknown) {
+      setErrorMessage(error instanceof Error ? error.message : 'An error occurred while updating profile');
     } finally {
       setIsSubmitting(false);
     }

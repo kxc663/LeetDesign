@@ -6,6 +6,7 @@ import { verify } from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // Routes that don't require authentication
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const publicRoutes = ['/', '/login', '/signup', '/about'];
 
 // Routes that require authentication to access

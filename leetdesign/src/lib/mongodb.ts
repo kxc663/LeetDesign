@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 // Define types for the global cache
 declare global {
+  // eslint-disable-next-line no-var
   var mongoose: {
     conn: mongoose.Mongoose | null;
     promise: Promise<mongoose.Mongoose> | null;

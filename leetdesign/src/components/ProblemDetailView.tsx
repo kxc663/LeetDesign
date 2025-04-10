@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Problem } from '@/models/Problem';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 interface ProblemDetailViewProps {
   problem: Problem;
@@ -22,10 +23,11 @@ export default function ProblemDetailView({ problem, onSaveSolution }: ProblemDe
   const backHerf = from === 'admin' ? '/admin/problems' : '/problems';
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Main content */}
-      <div className="container mx-auto px-6 py-8">
-        <div className="mb-8">
+    <Suspense fallback={<div>Loading...</div>}>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        {/* Main content */}
+        <div className="container mx-auto px-6 py-8">
+          <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
             <h1 className="text-3xl font-bold text-gray-800 dark:text-white">{problem.title}</h1>
             <div className="mt-3 md:mt-0">
@@ -167,6 +169,7 @@ export default function ProblemDetailView({ problem, onSaveSolution }: ProblemDe
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </Suspense>
   );
 } 

@@ -27,6 +27,7 @@ export async function getProblems(): Promise<ProblemListItem[]> {
     const problems = await Problem.find({}, 'id displayId title difficulty description category');
     console.log('Raw problems from DB:', problems);
     
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return problems.map((problem: any) => ({
       id: problem._id.toString(),
       displayId: problem.displayId,
@@ -130,6 +131,7 @@ export async function deleteProblem(id: string): Promise<boolean> {
 export async function saveSolution(problemId: string, solution: string): Promise<boolean> {
   // This would typically update a User or UserSolution collection
   // For now, return true as a placeholder
+  console.log('Saving solution for problem:', problemId, solution);
   return true;
 }
 
@@ -138,6 +140,7 @@ export async function saveSolution(problemId: string, solution: string): Promise
  */
 export async function markProblemCompleted(problemId: string): Promise<boolean> {
   // In a real app, this would be an API call
+  console.log('Marking problem as completed:', problemId);
   return true;
 }
 
