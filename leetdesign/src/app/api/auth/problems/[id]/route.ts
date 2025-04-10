@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getProblem, deleteProblem } from '@/lib/problemService';
+import { getProblem, deleteProblem, updateProblem } from '@/lib/problemService';
 import connectToDatabase from '@/lib/mongodb';
 import mongoose from 'mongoose';
 
@@ -80,4 +80,49 @@ export async function DELETE(
       { status: 500 }
     );
   }
-} 
+}
+
+// PUT /api/auth/problems/[id]
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const { id } = params;
+
+  if (!id) {
+    return NextResponse.json(
+      { error: 'Problem ID is required' },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const problemUpdate = await req.json();
+    await connectToDatabase();
+    
+    // Check if the ID is a valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { error: `Invalid MongoDB ObjectId: ${id}` },
+        { status: 400 }
+      );
+    }
+    
+    const updatedProblem = await updateProblem(id, problemUpdate);
+
+    if (!updatedProblem) {
+      return NextResponse.json(
+        { error: 'Problem not found or could not be updated' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(updatedProblem);
+  } catch (error) {
+    console.error(`Error updating problem with id ${id}:`, error);
+    return NextResponse.json(
+      { error: 'Failed to update problem' },
+      { status: 500 }
+    );
+  }
+}

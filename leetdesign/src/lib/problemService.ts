@@ -197,3 +197,57 @@ export async function createProblem(problem: CreateProblemInput): Promise<Proble
     throw error;
   }
 }
+
+/**
+ * Update an existing problem by ID
+ */
+export async function updateProblem(id: string, problemUpdate: Partial<CreateProblemInput>): Promise<ProblemType | null> {
+  // If on client side, make a fetch request instead of direct DB access
+  if (!isServer) {
+    try {
+      const response = await fetch(`/api/auth/problems/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(problemUpdate),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to update problem');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error(`Error updating problem with id ${id}:`, error);
+      throw error;
+    }
+  }
+  
+  // Server-side DB access
+  try {
+    // Add validation for valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.log(`Invalid MongoDB ObjectId: ${id}`);
+      return null;
+    }
+    
+    // Find the problem and update it
+    const updatedProblem = await Problem.findByIdAndUpdate(
+      id,
+      { ...problemUpdate },
+      { new: true, runValidators: true }
+    );
+    
+    if (!updatedProblem) {
+      console.log(`Problem with id ${id} not found`);
+      return null;
+    }
+    
+    return updatedProblem;
+  } catch (error) {
+    console.error(`Error updating problem with id ${id}:`, error);
+    throw error;
+  }
+}
