@@ -4,20 +4,69 @@ import { useState, useEffect } from 'react';
 import { ProblemListItem } from '@/models/Problem';
 import ProblemCard from '@/components/ProblemCard';
 import { getProblems } from '@/lib/problemService';
+import { ProgressStatus } from '@/models/UserProgress';
+
+// Define interface for problem with progress
+interface ProblemWithProgress extends ProblemListItem {
+  progressStatus?: ProgressStatus;
+}
 
 export default function ProblemsPage() {
-  const [problems, setProblems] = useState<ProblemListItem[]>([]);
+  const [problems, setProblems] = useState<ProblemWithProgress[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterDifficulty, setFilterDifficulty] = useState('All');
   const [filterCategory, setFilterCategory] = useState('All');
+  const [filterStatus, setFilterStatus] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Fetch problems from service
+  // Fetch problems and user progress
   useEffect(() => {
-    const fetchProblems = async () => {
+    const fetchProblemsAndProgress = async () => {
       try {
-        const data = await getProblems();
-        setProblems(data);
+        setLoading(true);
+        // Fetch all problems
+        const problemsData = await getProblems();
+        
+        // Try to fetch user progress (will fail if not logged in, which is fine)
+        try {
+          const progressResponse = await fetch('/api/auth/problems/progress');
+          
+          if (progressResponse.ok) {
+            const progressData = await progressResponse.json();
+            
+            // Map progress data to problems
+            const problemsWithProgress = problemsData.map((problem: ProblemListItem) => {
+              const progress = progressData.progress.find(
+                (p: any) => p.id === problem.id
+              );
+              
+              return {
+                ...problem,
+                progressStatus: progress ? progress.status : 'not_started',
+                attempted: progress && progress.status !== 'not_started',
+                completed: progress && progress.status === 'completed'
+              };
+            });
+            
+            setProblems(problemsWithProgress);
+          } else {
+            // If not logged in or other error, just use the problems without progress
+            setProblems(problemsData.map((problem: ProblemListItem) => ({
+              ...problem,
+              progressStatus: 'not_started',
+              attempted: false,
+              completed: false
+            })));
+          }
+        } catch (error) {
+          // If error fetching progress, just use the problems without progress
+          setProblems(problemsData.map((problem: ProblemListItem) => ({
+            ...problem,
+            progressStatus: 'not_started',
+            attempted: false,
+            completed: false
+          })));
+        }
       } catch (error) {
         console.error('Failed to fetch problems:', error);
       } finally {
@@ -25,21 +74,35 @@ export default function ProblemsPage() {
       }
     };
 
-    fetchProblems();
+    fetchProblemsAndProgress();
   }, []);
 
   // Get unique categories for the filter dropdown
   const categories = ['All', ...Array.from(new Set(problems.map(problem => problem.category)))];
   const difficulties = ['All', 'Easy', 'Medium', 'Hard'];
+  const statuses = ['All', 'Not Started', 'In Progress', 'Completed'];
 
   // Filter problems based on user selections
   const filteredProblems = problems.filter(problem => {
     const matchesDifficulty = filterDifficulty === 'All' || problem.difficulty === filterDifficulty;
     const matchesCategory = filterCategory === 'All' || problem.category === filterCategory;
+    
+    // Filter by progress status
+    let matchesStatus = true;
+    if (filterStatus !== 'All') {
+      if (filterStatus === 'Not Started') {
+        matchesStatus = problem.progressStatus === 'not_started';
+      } else if (filterStatus === 'In Progress') {
+        matchesStatus = problem.progressStatus === 'in_progress';
+      } else if (filterStatus === 'Completed') {
+        matchesStatus = problem.progressStatus === 'completed';
+      }
+    }
+    
     const matchesSearch = problem.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           problem.description.toLowerCase().includes(searchTerm.toLowerCase());
     
-    return matchesDifficulty && matchesCategory && matchesSearch;
+    return matchesDifficulty && matchesCategory && matchesSearch && matchesStatus;
   });
 
   if (loading) {
@@ -59,7 +122,7 @@ export default function ProblemsPage() {
         {/* Filters and search */}
         <div className="bg-white dark:bg-gray-800 rounded-lg p-6 mb-8 shadow-sm">
           <div className="flex flex-col md:flex-row gap-4">
-            <div className="w-full md:w-1/3">
+            <div className="w-full md:w-1/4">
               <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Search
               </label>
@@ -72,7 +135,7 @@ export default function ProblemsPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="w-full md:w-1/3">
+            <div className="w-full md:w-1/4">
               <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Difficulty
               </label>
@@ -87,7 +150,7 @@ export default function ProblemsPage() {
                 ))}
               </select>
             </div>
-            <div className="w-full md:w-1/3">
+            <div className="w-full md:w-1/4">
               <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Category
               </label>
@@ -99,6 +162,21 @@ export default function ProblemsPage() {
               >
                 {categories.map(category => (
                   <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+            </div>
+            <div className="w-full md:w-1/4">
+              <label htmlFor="status" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Status
+              </label>
+              <select
+                id="status"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+              >
+                {statuses.map(status => (
+                  <option key={status} value={status}>{status}</option>
                 ))}
               </select>
             </div>
