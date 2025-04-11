@@ -37,7 +37,7 @@ export default function ProblemsPage() {
             // Map progress data to problems
             const problemsWithProgress = problemsData.map((problem: ProblemListItem) => {
               const progress = progressData.progress.find(
-                (p: any) => p.id === problem.id
+                (p: { id: string; status: ProgressStatus }) => p.id === problem.id
               );
               
               return {
