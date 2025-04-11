@@ -11,7 +11,7 @@ export default function AboutPage() {
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             LeetDesign is an open-source platform designed to help students and engineers 
-            systematically practice System Design problems.
+            systematically practice System Design problems!
           </p>
         </div>
       </header>
