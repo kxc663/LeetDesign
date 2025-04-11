@@ -1,0 +1,15 @@
+{
+  "name": "leetdesign",
+  "version": "1.0.0",
+  "description": "LeetDesign is an open-source platform designed to help students and engineers systematically practice System Design problems. The platform offers a curated problem bank, guided thinking prompts, detailed reference solutions, and personal progress tracking.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}
