@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { Problem } from '@/models/Problem';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import { useAuth } from '@/hooks/AuthContext';
+import LoginPrompt from './LoginPrompt';
 
 interface ProblemDetailViewProps {
   problem: Problem;
@@ -18,13 +20,23 @@ function ProblemDetail({ problem, onSaveSolution }: ProblemDetailViewProps) {
   const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [progressStatus, setProgressStatus] = useState<'not_started' | 'in_progress' | 'completed'>('not_started');
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
   const backHref = from === 'admin' ? '/admin/problems' : '/problems';
+  
+  // Get auth status
+  const { user, isLoading: authLoading } = useAuth();
+  const isAuthenticated = !!user;
 
   // Fetch user progress when component mounts
   useEffect(() => {
+    // Only fetch progress if user is authenticated
+    if (!isAuthenticated && !authLoading) {
+      return;
+    }
+    
     const fetchUserProgress = async () => {
       try {
         const response = await fetch(`/api/auth/problems/progress/${problem._id}`);
@@ -46,9 +58,19 @@ function ProblemDetail({ problem, onSaveSolution }: ProblemDetailViewProps) {
     };
     
     fetchUserProgress();
-  }, [problem._id]);
+  }, [problem._id, isAuthenticated, authLoading]);
+
+  const promptLogin = () => {
+    setShowLoginPrompt(true);
+  };
 
   const handleSave = async () => {
+    // Check if the user is authenticated
+    if (!isAuthenticated) {
+      promptLogin();
+      return;
+    }
+    
     setIsSaving(true);
     setSaveMessage(null);
     
@@ -92,6 +114,12 @@ function ProblemDetail({ problem, onSaveSolution }: ProblemDetailViewProps) {
   };
 
   const markAsCompleted = async () => {
+    // Check if the user is authenticated
+    if (!isAuthenticated) {
+      promptLogin();
+      return;
+    }
+    
     setIsSaving(true);
     setSaveMessage(null);
     
@@ -126,6 +154,12 @@ function ProblemDetail({ problem, onSaveSolution }: ProblemDetailViewProps) {
   };
 
   const resetProgress = async () => {
+    // Check if the user is authenticated
+    if (!isAuthenticated) {
+      promptLogin();
+      return;
+    }
+    
     setIsSaving(true);
     setSaveMessage(null);
     
@@ -176,13 +210,15 @@ function ProblemDetail({ problem, onSaveSolution }: ProblemDetailViewProps) {
                 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}>
               {problem.difficulty}
             </span>
-            <span className={`inline-block px-3 py-1 text-sm rounded-full 
-              ${progressStatus === 'not_started' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' : 
-                progressStatus === 'in_progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 
-                'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}`}>
-              {progressStatus === 'not_started' ? 'Not Started' : 
-               progressStatus === 'in_progress' ? 'In Progress' : 'Completed'}
-            </span>
+            {isAuthenticated && (
+              <span className={`inline-block px-3 py-1 text-sm rounded-full 
+                ${progressStatus === 'not_started' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' : 
+                  progressStatus === 'in_progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 
+                  'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}`}>
+                {progressStatus === 'not_started' ? 'Not Started' : 
+                 progressStatus === 'in_progress' ? 'In Progress' : 'Completed'}
+              </span>
+            )}
           </div>
         </div>
         <p className="text-gray-600 dark:text-gray-300 mb-6">{problem.description}</p>
@@ -237,12 +273,22 @@ function ProblemDetail({ problem, onSaveSolution }: ProblemDetailViewProps) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Answer workspace */}
         <div className="lg:col-span-2">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 relative">
+            {/* Login prompt overlay */}
+            {!isAuthenticated && showLoginPrompt && (
+              <LoginPrompt 
+                message="You need to be logged in to save your progress and submit solutions."
+                redirectUrl={`/problems/${problem._id}`}
+                onClose={() => setShowLoginPrompt(false)}
+                isOverlay={true}
+              />
+            )}
+
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Your Solution</h2>
               
-              {/* Reset button - only show if there's progress to reset */}
-              {(progressStatus !== 'not_started' || answer.trim()) && (
+              {/* Reset button - only show if there's progress to reset and user is logged in */}
+              {isAuthenticated && (progressStatus !== 'not_started' || answer.trim()) && (
                 <div className="relative">
                   <button 
                     className="px-3 py-1 text-sm text-red-600 border border-red-600 rounded hover:bg-red-50 dark:text-red-400 dark:border-red-400 dark:hover:bg-gray-700 transition-colors"
@@ -287,10 +333,25 @@ function ProblemDetail({ problem, onSaveSolution }: ProblemDetailViewProps) {
                 {saveMessage.text}
               </div>
             )}
+
+            {!isAuthenticated && !showLoginPrompt && (
+              <div className="mb-4 p-3 rounded border border-amber-300 bg-amber-50 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-800/50">
+                <div className="flex items-start">
+                  <svg className="w-5 h-5 mr-2 mt-0.5 text-amber-500 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <div>
+                    <p className="font-medium">You are not logged in</p>
+                    <p className="text-sm">Your solution will not be saved. <button onClick={promptLogin} className="underline font-medium hover:text-amber-900 dark:hover:text-amber-100">Login</button> to save your progress.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="mb-4">
               <textarea
                 className="w-full h-96 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono"
-                placeholder="Write your solution here..."
+                placeholder={isAuthenticated ? "Write your solution here..." : "Write your solution here... (Login required to save)"}
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
               ></textarea>
@@ -299,15 +360,15 @@ function ProblemDetail({ problem, onSaveSolution }: ProblemDetailViewProps) {
               <div className="flex flex-col sm:flex-row gap-3">
                 <button 
                   className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={handleSave}
+                  onClick={isAuthenticated ? handleSave : promptLogin}
                   disabled={isSaving}
                 >
                   {isSaving ? 'Saving...' : 'Save Progress'}
                 </button>
-                {answer.trim() && progressStatus !== 'completed' && (
+                {answer.trim() && (isAuthenticated ? (progressStatus !== 'completed') : true) && (
                   <button 
                     className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={markAsCompleted}
+                    onClick={isAuthenticated ? markAsCompleted : promptLogin}
                     disabled={isSaving}
                   >
                     Mark as Completed
