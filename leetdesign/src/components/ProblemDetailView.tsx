@@ -21,6 +21,8 @@ function ProblemDetail({ problem, onSaveSolution }: ProblemDetailViewProps) {
   const [progressStatus, setProgressStatus] = useState<'not_started' | 'in_progress' | 'completed'>('not_started');
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [checkResult, setCheckResult] = useState<{ matchPercentage: number; feedback: string } | null>(null);
+  const [isChecking, setIsChecking] = useState(false);
 
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
@@ -184,6 +186,7 @@ function ProblemDetail({ problem, onSaveSolution }: ProblemDetailViewProps) {
       setAnswer('');
       setProgressStatus('not_started');
       setShowResetConfirm(false);
+      setCheckResult(null);
       setSaveMessage({ type: 'success', text: 'Progress has been reset!' });
     } catch (error) {
       console.error('Error resetting progress:', error);
@@ -193,6 +196,83 @@ function ProblemDetail({ problem, onSaveSolution }: ProblemDetailViewProps) {
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const checkSolution = async () => {
+    // Check if the user is authenticated
+    if (!isAuthenticated) {
+      promptLogin();
+      return;
+    }
+    
+    if (!answer.trim()) {
+      setSaveMessage({ type: 'error', text: 'Please write a solution before checking.' });
+      return;
+    }
+    
+    setIsChecking(true);
+    setCheckResult(null);
+    
+    try {
+      const response = await fetch('/api/check-solution', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userSolution: answer,
+          referenceSolution: problem.reference_solution,
+          problemTitle: problem.title,
+          problemDescription: problem.description,
+          functionalRequirements: problem.functional_requirements,
+          nonFunctionalRequirements: problem.non_functional_requirements,
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to check solution');
+      }
+      
+      const data = await response.json();
+      setCheckResult({
+        matchPercentage: data.matchPercentage,
+        feedback: data.feedback
+      });
+      
+      console.log('Check result:', data);
+      // If the match percentage is high enough, suggest marking as completed
+      if(data.matchPercentage >= 95) {
+        setSaveMessage({ 
+          type: 'success', 
+          text: `Congratulations! Your solution matches the reference solution by ${data.matchPercentage}%. This problem is now marked as completed!` 
+        });
+        markAsCompleted();
+      } else if (data.matchPercentage >= 80) {
+        setSaveMessage({ 
+          type: 'success', 
+          text: `Congratulations! Your solution matches the reference solution by ${data.matchPercentage}%. See what you can improve on!` 
+        });
+      } else if (data.matchPercentage >= 50) {
+        setSaveMessage({ 
+          type: 'success', 
+          text: `Your solution matches the reference solution by ${data.matchPercentage}%. See what you missed!` 
+        });
+      } else {
+        setSaveMessage({ 
+          type: 'error', 
+          text: `Your solution only matches the reference solution by ${data.matchPercentage}%. Practice more to improve!` 
+        });
+      }
+    } catch (error) {
+      console.error('Error checking solution:', error);
+      setSaveMessage({ 
+        type: 'error', 
+        text: error instanceof Error ? error.message : 'Error checking solution' 
+      });
+    } finally {
+      setIsChecking(false);
     }
   };
 
@@ -365,6 +445,13 @@ function ProblemDetail({ problem, onSaveSolution }: ProblemDetailViewProps) {
                 >
                   {isSaving ? 'Saving...' : 'Save Progress'}
                 </button>
+                <button 
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={isAuthenticated ? checkSolution : promptLogin}
+                  disabled={isChecking || !answer.trim()}
+                >
+                  {isChecking ? 'Checking...' : 'Check Solution'}
+                </button>
                 {answer.trim() && (isAuthenticated ? (progressStatus !== 'completed') : true) && (
                   <button 
                     className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -383,6 +470,35 @@ function ProblemDetail({ problem, onSaveSolution }: ProblemDetailViewProps) {
               </button>
             </div>
           </div>
+
+          {/* Check solution result */}
+          {checkResult && (
+            <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Solution Check Result</h2>
+              <div className="mb-4">
+                <div className="flex items-center">
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 mr-4">
+                    <div 
+                      className={`h-4 rounded-full ${
+                        checkResult.matchPercentage >= 80 ? 'bg-green-500' : 
+                        checkResult.matchPercentage >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+                      }`}
+                      style={{ width: `${checkResult.matchPercentage}%` }}
+                    ></div>
+                  </div>
+                  <span className="text-lg font-medium text-gray-800 dark:text-white">
+                    {checkResult.matchPercentage}% Match
+                  </span>
+                </div>
+              </div>
+              <div className="prose prose-indigo dark:prose-invert max-w-none">
+                <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-2">Feedback:</h3>
+                <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
+                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{checkResult.feedback}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Reference solution */}
           {showSolution && (
