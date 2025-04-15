@@ -1,48 +1,128 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 function SignupForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
 
+  // Password validation rules
+  const passwordRules = {
+    minLength: password.length >= 8,
+    hasUpperCase: /[A-Z]/.test(password),
+    hasLowerCase: /[a-z]/.test(password),
+    hasNumber: /[0-9]/.test(password),
+  };
+
+  const isPasswordValid = Object.values(passwordRules).every(Boolean);
+  const isConfirmPasswordValid = password === confirmPassword && isPasswordValid;
+
+  // Countdown timer effect
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [countdown]);
+
+  const handleSendVerification = async () => {
+    if (!email || !email.includes('@')) {
+      setErrorMessage('Please enter a valid email address');
+      return;
+    }
+
+    if (countdown > 0) {
+      setErrorMessage(`Please wait ${countdown} seconds before requesting a new code`);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/auth/send-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send verification code');
+      }
+
+      setErrorMessage('');
+      setCountdown(60); // Start 60-second countdown
+    } catch (error: unknown) {
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to send verification code');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
 
-    if (password !== confirmPassword) {
-      setErrorMessage('Passwords do not match');
+    if (!verificationCode) {
+      setErrorMessage('Please enter the verification code');
       return;
     }
 
-    if (password.length < 8) {
-      setErrorMessage('Password must be at least 8 characters long');
+    if (!isPasswordValid) {
+      setErrorMessage('Please ensure your password meets all requirements');
+      return;
+    }
+
+    if (!isConfirmPasswordValid) {
+      setErrorMessage('Passwords do not match');
       return;
     }
 
     try {
       setIsLoading(true);
 
-      const response = await fetch('/api/auth/signup', {
+      // First verify the code
+      const verifyResponse = await fetch('/api/auth/verify-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code: verificationCode }),
+      });
+
+      const verifyData = await verifyResponse.json();
+
+      if (!verifyResponse.ok) {
+        throw new Error(verifyData.error || 'Invalid verification code');
+      }
+
+      // If verification successful, proceed with signup
+      const signupResponse = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
       });
 
-      const data = await response.json();
+      const signupData = await signupResponse.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Something went wrong');
+      if (!signupResponse.ok) {
+        throw new Error(signupData.error || 'Something went wrong');
       }
 
       router.push(redirect ? `/login?registered=true&redirect=${redirect}` : '/login?registered=true');
@@ -104,23 +184,121 @@ function SignupForm() {
               </div>
             </div>
 
+            {/* Verification Code */}
+            <div>
+              <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Verification Code</label>
+              <div className="mt-1 flex space-x-2">
+                <input id="verificationCode" name="verificationCode" type="text" required value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)}
+                  className="block w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-indigo-500 focus:outline-none focus:border-indigo-500"
+                  placeholder="Enter code from email"
+                />
+                <button type="button" onClick={handleSendVerification} disabled={isLoading || countdown > 0}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-[100px] justify-center"
+                >
+                  {countdown > 0 ? `${countdown}s` : 'Send Code'}
+                </button>
+              </div>
+            </div>
+
             {/* Password */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-              <div className="mt-1">
-                <input id="password" name="password" type="password" autoComplete="new-password" required value={password} onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-indigo-500 focus:outline-none focus:border-indigo-500"
+              <div className="mt-1 relative">
+                <input id="password" name="password" type="password" autoComplete="new-password" required value={password} 
+                  onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => setShowPasswordRequirements(true)}
+                  className={`block w-full rounded-md border ${
+                    isPasswordValid ? 'border-green-500' : 'border-gray-300 dark:border-gray-600'
+                  } px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-indigo-500 focus:outline-none focus:border-indigo-500 pr-10`}
                 />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                  {isPasswordValid ? (
+                    <svg className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg className="h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
+                </div>
               </div>
+              {showPasswordRequirements && (
+                <div className="mt-2 text-sm">
+                  <div className="space-y-1">
+                    <div className={`flex items-center ${passwordRules.minLength ? 'text-green-600' : 'text-red-600'}`}>
+                      {passwordRules.minLength ? (
+                        <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      )}
+                      At least 8 characters
+                    </div>
+                    <div className={`flex items-center ${passwordRules.hasUpperCase ? 'text-green-600' : 'text-red-600'}`}>
+                      {passwordRules.hasUpperCase ? (
+                        <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      )}
+                      At least one uppercase letter
+                    </div>
+                    <div className={`flex items-center ${passwordRules.hasLowerCase ? 'text-green-600' : 'text-red-600'}`}>
+                      {passwordRules.hasLowerCase ? (
+                        <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      )}
+                      At least one lowercase letter
+                    </div>
+                    <div className={`flex items-center ${passwordRules.hasNumber ? 'text-green-600' : 'text-red-600'}`}>
+                      {passwordRules.hasNumber ? (
+                        <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      )}
+                      At least one number
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Confirm Password */}
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm password</label>
-              <div className="mt-1">
+              <div className="mt-1 relative">
                 <input id="confirmPassword" name="confirmPassword" type="password" autoComplete="new-password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="block w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-indigo-500 focus:outline-none focus:border-indigo-500"
+                  className={`block w-full rounded-md border ${
+                    isConfirmPasswordValid ? 'border-green-500' : 'border-gray-300 dark:border-gray-600'
+                  } px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-indigo-500 focus:outline-none focus:border-indigo-500 pr-10`}
                 />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                  {isConfirmPasswordValid ? (
+                    <svg className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg className="h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -139,7 +317,7 @@ function SignupForm() {
 
             {/* Submit button */}
             <div>
-              <button type="submit" disabled={isLoading}
+              <button type="submit" disabled={isLoading || !isPasswordValid || !isConfirmPasswordValid}
                 className="flex w-full justify-center rounded-md bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? 'Creating account...' : 'Create account'}
@@ -176,7 +354,6 @@ function SignupForm() {
               </button>
             </div>
           </div>
-
         </div>
       </div>
     </div>
