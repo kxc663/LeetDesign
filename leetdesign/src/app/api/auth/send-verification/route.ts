@@ -35,7 +35,7 @@ function readVerificationCodes() {
 }
 
 // Function to write verification codes
-function writeVerificationCodes(codes: any) {
+function writeVerificationCodes(codes: Record<string, { code: string; timestamp: number }>) {
   fs.writeFileSync(VERIFICATION_FILE, JSON.stringify(codes, null, 2));
 }
 
