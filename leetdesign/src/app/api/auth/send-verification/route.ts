@@ -1,30 +1,23 @@
 export const runtime = 'nodejs';
 
 import { NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { readVerificationCodes, writeVerificationCodes } from '@/lib/verification-storage';
 
 // Get environment variables
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASS = process.env.EMAIL_PASS;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
-if (!EMAIL_USER || !EMAIL_PASS) {
-  console.error('Missing required environment variables: EMAIL_USER and/or EMAIL_PASS');
+if (!RESEND_API_KEY) {
+  console.error('Missing required environment variable: RESEND_API_KEY');
 }
 
-// Create a transporter object using SMTP
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: EMAIL_USER,
-    pass: EMAIL_PASS,
-  },
-});
+// Initialize Resend
+const resend = new Resend(RESEND_API_KEY);
 
 export async function POST(request: Request) {
   try {
     // Check if environment variables are set
-    if (!EMAIL_USER || !EMAIL_PASS) {
+    if (!RESEND_API_KEY) {
       return NextResponse.json(
         { error: 'Email service not configured properly' },
         { status: 500 }
@@ -67,9 +60,9 @@ export async function POST(request: Request) {
     };
     writeVerificationCodes(codes);
 
-    // Send the verification email
-    await transporter.sendMail({
-      from: EMAIL_USER,
+    // Send the verification email using Resend
+    await resend.emails.send({
+      from: 'LeetDesign <onboarding@resend.dev>',
       to: email,
       subject: 'Verify your email for LeetDesign',
       html: `

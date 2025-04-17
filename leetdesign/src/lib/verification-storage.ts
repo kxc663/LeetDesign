@@ -1,30 +1,21 @@
-import fs from 'fs';
-import path from 'path';
-
-// File path for storing verification codes
-const VERIFICATION_FILE = path.join(process.cwd(), 'verification-codes.json');
-
-// Initialize verification codes file if it doesn't exist
-if (!fs.existsSync(VERIFICATION_FILE)) {
-  fs.writeFileSync(VERIFICATION_FILE, JSON.stringify({}));
-}
+// In-memory storage for verification codes
+// Note: In production, you should use a proper database
+const verificationCodes: Record<string, { code: string; timestamp: number }> = {};
 
 // Function to read verification codes
 export function readVerificationCodes() {
-  try {
-    const data = fs.readFileSync(VERIFICATION_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading verification codes:', error);
-    return {};
-  }
+  return verificationCodes;
 }
 
 // Function to write verification codes
 export function writeVerificationCodes(codes: Record<string, { code: string; timestamp: number }>) {
-  try {
-    fs.writeFileSync(VERIFICATION_FILE, JSON.stringify(codes, null, 2));
-  } catch (error) {
-    console.error('Error writing verification codes:', error);
-  }
+  // In a real application, you would store this in a database
+  // For now, we're just updating the in-memory object
+  Object.keys(verificationCodes).forEach(key => {
+    delete verificationCodes[key];
+  });
+  
+  Object.keys(codes).forEach(key => {
+    verificationCodes[key] = codes[key];
+  });
 } 
