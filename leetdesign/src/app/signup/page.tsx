@@ -133,10 +133,12 @@ function SignupForm() {
     }
   };
 
+  /*
   const handleSocialLogin = (provider: string) => {
     console.log(`Signup with ${provider}`);
     alert(`${provider} authentication will be implemented with NextAuth.js`);
   };
+  */
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -325,7 +327,7 @@ function SignupForm() {
             </div>
           </form>
 
-          {/* Divider */}
+          {/*
           <div className="mt-6 relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
@@ -335,7 +337,6 @@ function SignupForm() {
             </div>
           </div>
 
-          {/* Social login */}
           <div className="mt-6 grid grid-cols-2 gap-3">
             <div>
               <button
@@ -354,6 +355,7 @@ function SignupForm() {
               </button>
             </div>
           </div>
+          */}
         </div>
       </div>
     </div>

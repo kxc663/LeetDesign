@@ -58,10 +58,12 @@ function LoginForm() {
     }
   };
 
+  /*
   const handleSocialLogin = (provider: string) => {
     console.log(`Login with ${provider}`);
     alert(`${provider} authentication will be implemented with NextAuth.js`);
   };
+  */
 
   return (
     <>
@@ -143,6 +145,7 @@ function LoginForm() {
         </div>
       </form>
 
+      {/*
       <div className="mt-6">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -153,6 +156,7 @@ function LoginForm() {
           </div>
         </div>
 
+        
         <div className="mt-6 grid grid-cols-2 gap-3">
           <div>
             <button
@@ -178,6 +182,7 @@ function LoginForm() {
           </div>
         </div>
       </div>
+      */}
     </>
   );
 }
