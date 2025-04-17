@@ -5,9 +5,13 @@ import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
 
-// In a real application, you would store these in environment variables
-const EMAIL_USER = process.env.EMAIL_USER || 'your-email@example.com';
-const EMAIL_PASS = process.env.EMAIL_PASS || 'your-email-password';
+// Get environment variables
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASS = process.env.EMAIL_PASS;
+
+if (!EMAIL_USER || !EMAIL_PASS) {
+  console.error('Missing required environment variables: EMAIL_USER and/or EMAIL_PASS');
+}
 
 // Create a transporter object using SMTP
 const transporter = nodemailer.createTransport({
@@ -43,6 +47,14 @@ function writeVerificationCodes(codes: Record<string, { code: string; timestamp:
 
 export async function POST(request: Request) {
   try {
+    // Check if environment variables are set
+    if (!EMAIL_USER || !EMAIL_PASS) {
+      return NextResponse.json(
+        { error: 'Email service not configured properly' },
+        { status: 500 }
+      );
+    }
+
     const { email } = await request.json();
 
     if (!email || !email.includes('@')) {
