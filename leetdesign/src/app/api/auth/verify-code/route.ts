@@ -1,7 +1,9 @@
 export const runtime = 'nodejs';
 
 import { NextResponse } from 'next/server';
-import { readVerificationCodes, writeVerificationCodes } from '@/lib/verification-storage';
+import { Redis } from '@upstash/redis';
+
+const redis = Redis.fromEnv();
 
 export async function POST(request: Request) {
   try {
@@ -14,8 +16,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const codes = readVerificationCodes();
-    const storedData = codes[email];
+    const storedData = await redis.get<{ code: string; timestamp: number }>(email);
 
     if (!storedData) {
       return NextResponse.json(
@@ -24,20 +25,18 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if code has expired (10 minutes)
+    // Check expiration (10 minutes)
     const now = Date.now();
-    const codeAge = now - storedData.timestamp;
-    const expirationTime = 10 * 60 * 1000; // 10 minutes in milliseconds
-
-    if (codeAge > expirationTime) {
-      delete codes[email]; // Clean up expired code
-      writeVerificationCodes(codes);
+    const expireTime = 10 * 60 * 1000;
+    if (now - storedData.timestamp > expireTime) {
+      await redis.del(email);
       return NextResponse.json(
         { error: 'Verification code has expired' },
         { status: 400 }
       );
     }
 
+    // Check correctness
     if (storedData.code !== code) {
       return NextResponse.json(
         { error: 'Invalid verification code' },
@@ -45,11 +44,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // Clean up the used code
-    delete codes[email];
-    writeVerificationCodes(codes);
+    // Success, remove the code
+    await redis.del(email);
 
-    return NextResponse.json({ message: 'Code verified successfully' });
+    return NextResponse.json({ message: 'Email verified successfully' });
   } catch (error) {
     console.error('Error verifying code:', error);
     return NextResponse.json(
@@ -57,4 +55,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-} 
+}
