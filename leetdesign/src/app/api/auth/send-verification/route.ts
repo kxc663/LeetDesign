@@ -27,10 +27,8 @@ export async function POST(request: Request) {
 
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // 保存验证码，有效期10分钟
     await redis.set(email, { code, timestamp: now }, { ex: 600 });
 
-    // ⬇️ 在这里动态引入 nodemailer，避免构建时报错
     const nodemailer = (await import('nodemailer')).default;
 
     const transporter = nodemailer.createTransport({
