@@ -2,8 +2,7 @@ export const runtime = 'nodejs';
 
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
-import fs from 'fs';
-import path from 'path';
+import { readVerificationCodes, writeVerificationCodes } from '@/lib/verification-storage';
 
 // Get environment variables
 const EMAIL_USER = process.env.EMAIL_USER;
@@ -21,29 +20,6 @@ const transporter = nodemailer.createTransport({
     pass: EMAIL_PASS,
   },
 });
-
-// File path for storing verification codes
-const VERIFICATION_FILE = path.join(process.cwd(), 'verification-codes.json');
-
-// Initialize verification codes file if it doesn't exist
-if (!fs.existsSync(VERIFICATION_FILE)) {
-  fs.writeFileSync(VERIFICATION_FILE, JSON.stringify({}));
-}
-
-// Function to read verification codes
-function readVerificationCodes() {
-  try {
-    const data = fs.readFileSync(VERIFICATION_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return {};
-  }
-}
-
-// Function to write verification codes
-function writeVerificationCodes(codes: Record<string, { code: string; timestamp: number }>) {
-  fs.writeFileSync(VERIFICATION_FILE, JSON.stringify(codes, null, 2));
-}
 
 export async function POST(request: Request) {
   try {
