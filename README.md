@@ -18,10 +18,12 @@ LeetDesign aims to provide a structured approach to learning system design with 
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Next.js, React, TailwindCSS
+- **Frontend**: Next.js 14, React, TypeScript, TailwindCSS
 - **Backend**: Next.js API Routes
 - **Database**: MongoDB with Mongoose
 - **Authentication**: NextAuth.js with Google and GitHub providers
+- **Email Service**: Resend
+- **Development Tools**: Husky for Git hooks, ESLint for code quality
 - **Deployment**: Vercel
 
 ## 🚀 Getting Started
@@ -35,13 +37,13 @@ LeetDesign aims to provide a structured approach to learning system design with 
 ### Installation
 
 1. Clone the repository:
-   ```
+   ```bash
    git clone https://github.com/kxc663/LeetDesign.git
    cd LeetDesign
    ```
 
 2. Install dependencies:
-   ```
+   ```bash
    cd leetdesign
    npm install
    # or
@@ -64,12 +66,12 @@ LeetDesign aims to provide a structured approach to learning system design with 
    GITHUB_ID=your_github_client_id
    GITHUB_SECRET=your_github_client_secret
 
-   # JWT
-   JWT_SECRET=your_jwt_secret
+   # Email Service
+   RESEND_API_KEY=your_resend_api_key
    ```
 
 4. Run the development server:
-   ```
+   ```bash
    npm run dev
    # or
    yarn dev
@@ -81,26 +83,29 @@ LeetDesign aims to provide a structured approach to learning system design with 
 
 ```
 leetdesign/
-├── public/              # Static assets
 ├── src/
-│   ├── app/             # Next.js App Router
-│   │   ├── api/         # API routes
-│   │   ├── pages/       # Application pages
-│   │   │   ├── problems/    # Problem listing and details
-│   │   │   ├── login/       # Authentication pages
-│   │   │   ├── signup/      # User registration
-│   │   │   └── about/       # About page
-│   │   ├── globals.css  # Global styles
-│   │   ├── layout.tsx   # Root layout
-│   │   └── page.tsx     # Home page
+│   ├── app/             # Next.js App Router pages and API routes
 │   ├── components/      # Reusable UI components
-│   ├── lib/             # Utility functions and libraries
-│   └── models/          # MongoDB models
-├── .env                 # Environment variables (not in repo)
-├── next.config.js       # Next.js configuration
-├── package.json         # Project dependencies
-└── tailwind.config.js   # Tailwind CSS configuration
+│   ├── hooks/          # Custom React hooks
+│   ├── lib/            # Utility functions and libraries
+│   ├── models/         # MongoDB models
+│   └── middleware.ts   # Next.js middleware for authentication
+├── public/             # Static assets
+├── .env               # Environment variables (not in repo)
+├── next.config.mjs    # Next.js configuration
+├── tailwind.config.ts # Tailwind CSS configuration
+├── tsconfig.json      # TypeScript configuration
+└── package.json       # Project dependencies
 ```
+
+## 🛠️ Development
+
+The project uses several development tools to maintain code quality:
+
+- **TypeScript** for type safety
+- **ESLint** for code linting
+- **Husky** for Git hooks
+- **TailwindCSS** for styling
 
 ## 👥 Contributing
 
@@ -114,7 +119,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the ISC License.
 
 ## 🙏 Acknowledgments
 

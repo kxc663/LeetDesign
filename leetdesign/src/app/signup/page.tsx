@@ -189,13 +189,13 @@ function SignupForm() {
             {/* Verification Code */}
             <div>
               <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Verification Code</label>
-              <div className="mt-1 flex space-x-2">
+              <div className="mt-1 flex gap-2">
                 <input id="verificationCode" name="verificationCode" type="text" required value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)}
                   className="block w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-indigo-500 focus:outline-none focus:border-indigo-500"
                   placeholder="Enter code from email"
                 />
                 <button type="button" onClick={handleSendVerification} disabled={isLoading || countdown > 0}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed min-w-[100px] justify-center"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                 >
                   {countdown > 0 ? `${countdown}s` : 'Send Code'}
                 </button>

@@ -215,7 +215,7 @@ function ProblemDetail({ problem, onSaveSolution }: ProblemDetailViewProps) {
     setCheckResult(null);
     
     try {
-      const response = await fetch('/api/check-solution', {
+      const response = await fetch('/api/auth/check-solution', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
