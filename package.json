@@ -11,8 +11,5 @@
   "license": "ISC",
   "devDependencies": {
     "husky": "^9.1.7"
-  },
-  "dependencies": {
-    "@headlessui/react": "^2.2.2"
   }
 }
