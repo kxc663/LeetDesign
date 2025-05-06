@@ -5,13 +5,14 @@ import Link from 'next/link';
 import { getProblems, deleteProblem } from '@/lib/problemService';
 import { ProblemListItem } from '@/models/Problem'; 
 import { useAuth } from '@/hooks/AuthContext';
+import ConfirmationModal from '@/components/ConfirmationModal';
 
 export default function ManageProblemsPage() {
   const { user, isAuthenticated } = useAuth();
   const [problems, setProblems] = useState<ProblemListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [problemToDelete, setProblemToDelete] = useState<ProblemListItem | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   
   // Check if user is admin
@@ -42,13 +43,15 @@ export default function ManageProblemsPage() {
   );
   
   // Handle delete problem
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
+    if (!problemToDelete) return;
+
     try {
-      const success = await deleteProblem(id);
+      const success = await deleteProblem(problemToDelete.id);
       if (success) {
         // Remove from local state
-        setProblems(problems.filter(problem => problem.id !== id));
-        setDeleteConfirm(null);
+        setProblems(problems.filter(problem => problem.id !== problemToDelete.id));
+        setProblemToDelete(null);
       } else {
         setError('Failed to delete problem. Please try again.');
       }
@@ -205,29 +208,12 @@ export default function ManageProblemsPage() {
                         >
                           Edit
                         </Link>
-                        {deleteConfirm === problem.id ? (
-                          <div className="flex items-center space-x-1">
-                            <button
-                              onClick={() => handleDelete(problem.id)}
-                              className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                            >
-                              Confirm
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirm(null)}
-                              className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => setDeleteConfirm(problem.id)}
-                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                          >
-                            Delete
-                          </button>
-                        )}
+                        <button
+                          onClick={() => setProblemToDelete(problem)}
+                          className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                        >
+                          Delete
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -252,6 +238,17 @@ export default function ManageProblemsPage() {
           </div>
         )}
       </div>
+
+      <ConfirmationModal
+        isOpen={!!problemToDelete}
+        onClose={() => setProblemToDelete(null)}
+        onConfirm={handleDelete}
+        title="Delete Problem"
+        description={`Are you sure you want to delete "${problemToDelete?.title}"? This action cannot be undone.`}
+        confirmButtonText="Delete"
+        cancelButtonText="Cancel"
+        confirmButtonVariant="danger"
+      />
     </div>
   );
 } 

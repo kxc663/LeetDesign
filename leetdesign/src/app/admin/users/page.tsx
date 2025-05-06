@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/AuthContext';
-import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
+import ConfirmationModal from '@/components/ConfirmationModal';
 
 interface User {
   id: string;
@@ -218,12 +218,15 @@ export default function UserManagementPage() {
       </div>
 
       {/* Delete Confirmation Modal */}
-      <DeleteConfirmationModal
+      <ConfirmationModal
         isOpen={!!userToDelete}
         onClose={() => setUserToDelete(null)}
         onConfirm={handleDeleteUser}
         title="Delete User"
         description={`Are you sure you want to delete ${userToDelete?.name}? This action cannot be undone.`}
+        confirmButtonText="Delete"
+        cancelButtonText="Cancel"
+        confirmButtonVariant="danger"
       />
     </div>
   );

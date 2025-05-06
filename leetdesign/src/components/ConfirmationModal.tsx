@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 
-interface DeleteConfirmationModalProps {
+interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
@@ -9,17 +9,30 @@ interface DeleteConfirmationModalProps {
   description: string;
   confirmButtonText?: string;
   cancelButtonText?: string;
+  confirmButtonVariant?: 'primary' | 'danger' | 'success';
 }
 
-export default function DeleteConfirmationModal({
+export default function ConfirmationModal({
   isOpen,
   onClose,
   onConfirm,
   title,
   description,
-  confirmButtonText = 'Delete',
+  confirmButtonText = 'Confirm',
   cancelButtonText = 'Cancel',
-}: DeleteConfirmationModalProps) {
+  confirmButtonVariant = 'primary',
+}: ConfirmationModalProps) {
+  const getConfirmButtonClasses = () => {
+    switch (confirmButtonVariant) {
+      case 'danger':
+        return 'bg-red-600 hover:bg-red-700 focus-visible:ring-red-500';
+      case 'success':
+        return 'bg-green-600 hover:bg-green-700 focus-visible:ring-green-500';
+      default:
+        return 'bg-indigo-600 hover:bg-indigo-700 focus-visible:ring-indigo-500';
+    }
+  };
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
@@ -69,7 +82,7 @@ export default function DeleteConfirmationModal({
                   </button>
                   <button
                     type="button"
-                    className="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                    className={`inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${getConfirmButtonClasses()}`}
                     onClick={onConfirm}
                   >
                     {confirmButtonText}
