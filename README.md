@@ -22,7 +22,7 @@ LeetDesign aims to provide a structured approach to learning system design with 
 - **Backend**: Next.js API Routes
 - **Database**: MongoDB with Mongoose
 - **Authentication**: NextAuth.js with Google and GitHub providers
-- **Email Service**: Resend
+- **Email Service**: nodemailer
 - **Development Tools**: Husky for Git hooks, ESLint for code quality
 - **Deployment**: Vercel
 
