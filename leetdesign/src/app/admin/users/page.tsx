@@ -20,6 +20,7 @@ export default function UserManagementPage() {
   const [error, setError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [modalContent, setModalContent] = useState<{ name: string } | null>(null);
 
   // In a real app, we would check if the user has admin role
   const isAdmin = isAuthenticated && user?.email?.endsWith('@leetdesign.com');
@@ -31,6 +32,7 @@ export default function UserManagementPage() {
         throw new Error('Failed to fetch users');
       }
       const data = await response.json();
+      console.log(data);
       setUsers(data.users);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -69,6 +71,19 @@ export default function UserManagementPage() {
     } catch (err) {
       setDeleteError(err instanceof Error ? err.message : 'An error occurred while deleting user');
     }
+  };
+
+  const handleDeleteClick = (user: User) => {
+    setModalContent({ name: user.name });
+    setUserToDelete(user);
+  };
+
+  const handleModalClose = () => {
+    setUserToDelete(null);
+    // Clear modal content after a short delay to allow animation to complete
+    setTimeout(() => {
+      setModalContent(null);
+    }, 300);
   };
 
   return (
@@ -122,18 +137,24 @@ export default function UserManagementPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.email}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.role}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                      {user.status}
-                    </span>
+                    {user.status === 'active' ? (
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        Active
+                      </span>
+                    ) : (
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                        Inactive
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.joinedDate}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    <button className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">
+                    <button className="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300 mr-3">
                       Edit
                     </button>
                     {user.role !== 'Admin' && (
                       <button
-                        onClick={() => setUserToDelete(user)}
+                        onClick={() => handleDeleteClick(user)}
                         className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                       >
                         Delete
@@ -150,10 +171,10 @@ export default function UserManagementPage() {
       {/* Delete Confirmation Modal */}
       <ConfirmationModal
         isOpen={!!userToDelete}
-        onClose={() => setUserToDelete(null)}
+        onClose={handleModalClose}
         onConfirm={handleDeleteUser}
         title="Delete User"
-        description={`Are you sure you want to delete ${userToDelete?.name}? This action cannot be undone.`}
+        description={modalContent ? `Are you sure you want to delete ${modalContent.name}?` : ''}
         confirmButtonText="Delete"
         cancelButtonText="Cancel"
         confirmButtonVariant="danger"

@@ -1,6 +1,16 @@
 import mongoose, { Schema, Document, Model, CallbackError } from 'mongoose';
 import { hash, compare } from 'bcrypt';
 
+export const UserRole = {
+  ADMIN: 'Admin',
+  USER: 'User',
+} as const;
+
+export const UserStatus = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+} as const;
+
 // Define the User interface
 export interface IUser extends Document {
   name: string;
@@ -9,6 +19,8 @@ export interface IUser extends Document {
   comparePassword: (password: string) => Promise<boolean>;
   createdAt: Date;
   updatedAt: Date;
+  role: typeof UserRole[keyof typeof UserRole];
+  status: typeof UserStatus[keyof typeof UserStatus];
 }
 
 // Create the schema
@@ -31,6 +43,11 @@ const UserSchema = new Schema<IUser>(
       minlength: [8, 'Password must be at least 8 characters'],
       select: false, // Don't include password by default in queries
     },
+    status: {
+      type: String,
+      enum: ['active', 'inactive'],
+      default: 'active',
+    },
   },
   { timestamps: true }
 );
@@ -41,7 +58,7 @@ if (typeof window === 'undefined') {
     if (!this.isModified('password')) {
       return next();
     }
-    
+
     try {
       const saltRounds = 10;
       this.password = await hash(this.password, saltRounds);

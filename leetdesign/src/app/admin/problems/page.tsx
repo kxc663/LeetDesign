@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getProblems, deleteProblem } from '@/lib/problemService';
-import { ProblemListItem } from '@/models/Problem'; 
+import { ProblemListItem } from '@/models/Problem';
 import { useAuth } from '@/hooks/AuthContext';
 import ConfirmationModal from '@/components/ConfirmationModal';
 
@@ -14,10 +14,10 @@ export default function ManageProblemsPage() {
   const [error, setError] = useState('');
   const [problemToDelete, setProblemToDelete] = useState<ProblemListItem | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   // Check if user is admin
   const isAdmin = isAuthenticated && user?.email?.endsWith('@leetdesign.com');
-  
+
   // Fetch problems
   useEffect(() => {
     const fetchProblems = async () => {
@@ -31,17 +31,17 @@ export default function ManageProblemsPage() {
         setLoading(false);
       }
     };
-    
+
     fetchProblems();
   }, []);
-  
+
   // Filter problems based on search term
-  const filteredProblems = problems.filter(problem => 
+  const filteredProblems = problems.filter(problem =>
     problem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     problem.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     problem.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
+
   // Handle delete problem
   const handleDelete = async () => {
     if (!problemToDelete) return;
@@ -60,7 +60,7 @@ export default function ManageProblemsPage() {
       setError('An error occurred while deleting the problem.');
     }
   };
-  
+
   // Access control
   if (!isAuthenticated || !isAdmin) {
     return (
@@ -73,7 +73,7 @@ export default function ManageProblemsPage() {
       </div>
     );
   }
-  
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-6 py-8">
@@ -86,21 +86,15 @@ export default function ManageProblemsPage() {
             >
               Create New Problem
             </Link>
-            <Link
-              href="/admin"
-              className="px-4 py-2 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-            >
-              Back to Dashboard
-            </Link>
           </div>
         </div>
-        
+
         {error && (
           <div className="mb-6 p-4 bg-red-100 border border-red-200 text-red-700 dark:bg-red-900 dark:border-red-700 dark:text-red-200 rounded-md">
             {error}
           </div>
         )}
-        
+
         {/* Search and filters */}
         <div className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-6 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center gap-4">
@@ -124,7 +118,7 @@ export default function ManageProblemsPage() {
             </div>
           </div>
         </div>
-        
+
         {/* Problems list */}
         {loading ? (
           <div className="flex justify-center py-12">
@@ -147,9 +141,6 @@ export default function ManageProblemsPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Category
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Status
-                  </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Actions
                   </th>
@@ -166,33 +157,17 @@ export default function ManageProblemsPage() {
                       <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">{problem.description}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                        problem.difficulty === 'Easy' 
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                          : problem.difficulty === 'Medium'
-                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                      }`}>
+                      <span className={`inline-flex px-2 py-1 text-xs rounded-full ${problem.difficulty === 'Easy'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        : problem.difficulty === 'Medium'
+                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                        }`}>
                         {problem.difficulty}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       {problem.category}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {problem.completed ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                          Completed
-                        </span>
-                      ) : problem.attempted ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                          Attempted
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
-                          New
-                        </span>
-                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end space-x-2">
@@ -225,7 +200,7 @@ export default function ManageProblemsPage() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-8 text-center">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No problems found</h3>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              {searchTerm 
+              {searchTerm
                 ? "No problems match your search criteria. Try adjusting your search."
                 : "No problems are available yet."}
             </p>
@@ -244,7 +219,7 @@ export default function ManageProblemsPage() {
         onClose={() => setProblemToDelete(null)}
         onConfirm={handleDelete}
         title="Delete Problem"
-        description={`Are you sure you want to delete "${problemToDelete?.title}"? This action cannot be undone.`}
+        description={`Are you sure you want to delete "${problemToDelete?.title}"? `}
         confirmButtonText="Delete"
         cancelButtonText="Cancel"
         confirmButtonVariant="danger"

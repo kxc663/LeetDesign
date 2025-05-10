@@ -45,8 +45,8 @@ export async function GET(req: NextRequest) {
             id: user._id,
             name: user.name,
             email: user.email,
-            role: user.email?.endsWith('@leetdesign.com') ? 'Admin' : 'User',
-            status: 'Active',
+            role: user.role,
+            status: user.status,
             joinedDate: user.createdAt.toISOString().split('T')[0]
         }));
 
