@@ -10,7 +10,7 @@ export default function AboutPage() {
             About LeetDesign
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            LeetDesign is an open-source platform designed to help students and engineers 
+            LeetDesign is an open-source platform designed to help students and engineers
             systematically practice System Design problems.
           </p>
         </div>
@@ -22,18 +22,18 @@ export default function AboutPage() {
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">Our Mission</h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
-              System design interviews have become a critical part of the technical interview process 
+              System design interviews have become a critical part of the technical interview process
               for software engineers, especially for mid to senior-level positions. Unlike coding interviews,
-              system design questions are open-ended and require a deep understanding of distributed systems, 
+              system design questions are open-ended and require a deep understanding of distributed systems,
               scalability, and reliability.
             </p>
             <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
-              We created LeetDesign to provide a structured approach to learning and practicing system design. 
-              Our platform offers high-quality problems, guided thinking prompts, detailed reference solutions, 
+              We created LeetDesign to provide a structured approach to learning and practicing system design.
+              Our platform offers high-quality problems, guided thinking prompts, detailed reference solutions,
               and progress tracking — making it easier to master complex system architecture skills step by step.
             </p>
             <p className="text-lg text-gray-600 dark:text-gray-300">
-              Our goal is to demystify system design and help engineers build the skills and confidence needed 
+              Our goal is to demystify system design and help engineers build the skills and confidence needed
               to excel in technical interviews and real-world engineering challenges.
             </p>
           </div>
@@ -61,7 +61,7 @@ export default function AboutPage() {
                 From URL shorteners to social networks, our problems cover a wide range of real-world scenarios.
               </p>
             </div>
-            
+
             <div className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center mb-4">
                 <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -72,11 +72,11 @@ export default function AboutPage() {
                 Guided Learning Workspace
               </h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Our structured workspace guides you through the system design process with an intuitive 
+                Our structured workspace guides you through the system design process with an intuitive
                 markdown editor and step-by-step approach prompts that help you consider all aspects of your design.
               </p>
             </div>
-            
+
             <div className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center mb-4">
                 <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -91,7 +91,7 @@ export default function AboutPage() {
                 When ready, compare your design with detailed expert reference solutions.
               </p>
             </div>
-            
+
             <div className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center mb-4">
                 <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -106,7 +106,7 @@ export default function AboutPage() {
                 and where you might need more practice.
               </p>
             </div>
-            
+
             <div className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center mb-4">
                 <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -122,7 +122,7 @@ export default function AboutPage() {
                 <span className="text-sm italic block mt-2">(Coming soon)</span>
               </p>
             </div>
-            
+
             <div className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center mb-4">
                 <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -141,7 +141,7 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-      
+
       {/* Call to action */}
       <section className="py-16">
         <div className="container mx-auto px-6">
@@ -182,7 +182,7 @@ export default function AboutPage() {
               <div>
                 <h3 className="text-gray-800 dark:text-white font-semibold mb-4">Connect</h3>
                 <ul className="space-y-2">
-                  <li><a href="https://github.com/yourusername/LeetDesign" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400">GitHub</a></li>
+                  <li><a href="https://github.com/kxc663/LeetDesign" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400">GitHub</a></li>
                   <li><a href="mailto:contact@leetdesign.io" className="text-gray-600 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400">Contact</a></li>
                 </ul>
               </div>

@@ -60,7 +60,7 @@ export default function AdminLayout({
                     : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700'
                     }`}
                 >
-                  Manage Problems
+                  Problem Management
                 </Link>
                 <Link
                   href="/admin/users"

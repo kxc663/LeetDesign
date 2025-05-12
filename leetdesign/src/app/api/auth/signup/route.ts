@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
-import User from '@/models/User';
+import User, { UserRole, UserStatus } from '@/models/User';
 
 export async function POST(req: NextRequest) {
   try {
@@ -43,9 +43,11 @@ export async function POST(req: NextRequest) {
         message: 'User registered successfully',
         user: {
           _id: user._id,
-          name: user.name, 
+          name: user.name,
           email: user.email,
           createdAt: user.createdAt,
+          role: UserRole.USER,
+          status: UserStatus.ACTIVE,
         }
       },
       { status: 201 }
