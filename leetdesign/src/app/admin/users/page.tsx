@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/AuthContext';
 import ConfirmationModal from '@/components/ConfirmationModal';
+import UserFormModal, { UserFormData } from '@/components/UserFormModal';
 import Link from 'next/link';
 
 interface User {
@@ -23,6 +24,11 @@ export default function UserManagementPage() {
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [modalContent, setModalContent] = useState<{ name: string } | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // New state for user form modal
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   // In a real app, we would check if the user has admin role
   const isAdmin = isAuthenticated && user?.email?.endsWith('@leetdesign.com');
@@ -87,6 +93,46 @@ export default function UserManagementPage() {
     }
   };
 
+  // Handle opening the form modal to create a new user
+  const handleAddUserClick = () => {
+    setIsFormModalOpen(true);
+  };
+
+  // Handle form submission for creating a new user
+  const handleCreateUser = async (userData: UserFormData) => {
+    setIsSubmitting(true);
+    setFormError(null);
+
+    try {
+      const response = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: userData.name,
+          email: userData.email,
+          password: userData.password,
+          role: userData.role,
+          status: userData.status,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to create user');
+      }
+
+      // Refresh the users list
+      await fetchUsers();
+      setIsFormModalOpen(false);
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : 'An error occurred while creating user');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Filter users based on search term
   const filteredUsers = users.filter(user =>
     (user.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
@@ -113,15 +159,18 @@ export default function UserManagementPage() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Manage Users</h1>
           <div className="flex space-x-4">
-            <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
+            <button
+              onClick={handleAddUserClick}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+            >
               Add New User
             </button>
           </div>
         </div>
 
-        {(error || deleteError) && (
+        {(error || deleteError || formError) && (
           <div className="mb-6 p-4 bg-red-100 border border-red-200 text-red-700 dark:bg-red-900 dark:border-red-700 dark:text-red-200 rounded-md">
-            {error || deleteError}
+            {error || deleteError || formError}
           </div>
         )}
 
@@ -214,6 +263,7 @@ export default function UserManagementPage() {
                 : "No users are available yet."}
             </p>
             <button
+              onClick={handleAddUserClick}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
             >
               Add Your First User
@@ -222,6 +272,7 @@ export default function UserManagementPage() {
         )}
       </div>
 
+      {/* Delete User Confirmation Modal */}
       <ConfirmationModal
         isOpen={!!userToDelete}
         onClose={handleModalClose}
@@ -231,6 +282,15 @@ export default function UserManagementPage() {
         confirmButtonText="Delete"
         cancelButtonText="Cancel"
         confirmButtonVariant="danger"
+      />
+
+      {/* User Form Modal */}
+      <UserFormModal
+        isOpen={isFormModalOpen}
+        onClose={() => setIsFormModalOpen(false)}
+        onSubmit={handleCreateUser}
+        title="Add New User"
+        isSubmitting={isSubmitting}
       />
     </div>
   );
