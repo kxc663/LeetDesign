@@ -29,6 +29,7 @@ export default function UserManagementPage() {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [userToEdit, setUserToEdit] = useState<User | null>(null);
 
   // In a real app, we would check if the user has admin role
   const isAdmin = isAuthenticated && user?.email?.endsWith('@leetdesign.com');
@@ -95,17 +96,30 @@ export default function UserManagementPage() {
 
   // Handle opening the form modal to create a new user
   const handleAddUserClick = () => {
+    setUserToEdit(null);
     setIsFormModalOpen(true);
   };
 
-  // Handle form submission for creating a new user
-  const handleCreateUser = async (userData: UserFormData) => {
+  // Handle opening the form modal to edit a user
+  const handleEditClick = (user: User) => {
+    setUserToEdit(user);
+    setIsFormModalOpen(true);
+  };
+
+  // Handle form submission for creating or updating a user
+  const handleUserSubmit = async (userData: UserFormData) => {
     setIsSubmitting(true);
     setFormError(null);
 
     try {
-      const response = await fetch('/api/admin/users', {
-        method: 'POST',
+      const url = userToEdit 
+        ? `/api/admin/users/${userToEdit.id}`
+        : '/api/admin/users';
+      
+      const method = userToEdit ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -120,14 +134,15 @@ export default function UserManagementPage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to create user');
+        throw new Error(data.error || `Failed to ${userToEdit ? 'update' : 'create'} user`);
       }
 
       // Refresh the users list
       await fetchUsers();
       setIsFormModalOpen(false);
+      setUserToEdit(null);
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : 'An error occurred while creating user');
+      setFormError(err instanceof Error ? err.message : `An error occurred while ${userToEdit ? 'updating' : 'creating'} user`);
     } finally {
       setIsSubmitting(false);
     }
@@ -236,7 +251,10 @@ export default function UserManagementPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{user.joinedDate}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end space-x-2">
-                        <button className="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300">
+                        <button 
+                          onClick={() => handleEditClick(user)}
+                          className="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300"
+                        >
                           Edit
                         </button>
                         {user.role !== 'Admin' && (
@@ -287,9 +305,19 @@ export default function UserManagementPage() {
       {/* User Form Modal */}
       <UserFormModal
         isOpen={isFormModalOpen}
-        onClose={() => setIsFormModalOpen(false)}
-        onSubmit={handleCreateUser}
-        title="Add New User"
+        onClose={() => {
+          setIsFormModalOpen(false);
+          setUserToEdit(null);
+        }}
+        onSubmit={handleUserSubmit}
+        title={userToEdit ? "Edit User" : "Add New User"}
+        initialData={userToEdit ? {
+          id: userToEdit.id,
+          name: userToEdit.name,
+          email: userToEdit.email,
+          role: userToEdit.role,
+          status: userToEdit.status,
+        } : undefined}
         isSubmitting={isSubmitting}
       />
     </div>
